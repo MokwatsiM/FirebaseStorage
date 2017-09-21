@@ -2,6 +2,7 @@ package com.example.mlab.firebasestorage;
 
 import android.*;
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.audiofx.BassBoost;
@@ -13,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Firebase objects for storage and database
     StorageReference mStorageReference;
     DatabaseReference mDatabaseReference;
+
+    ProgressDialog progressDialog;
 
 
     @Override
@@ -74,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
+        if (TextUtils.isEmpty(editTextFileName.getText().toString())) {
+            editTextFileName.setError("please enter the name of your file");
+            return;
+        }
         //creating an intent for a file chooser
         Intent intent = new Intent();
         intent.setType("application/pdf");
@@ -107,9 +115,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 progressBar.setVisibility(View.GONE);
                 textViewStatus.setText("File Uploaded Succesfully");
 
+
                 Uploads uploads = new Uploads(editTextFileName.getText().toString(), taskSnapshot.getDownloadUrl().toString());
                 mDatabaseReference.child(mDatabaseReference.push().getKey()).setValue(uploads);
-
+                progressDialog.dismiss();
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -122,20 +131,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
 
-                double progress = (100.0*taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
-                textViewStatus.setText((int) progress +"% Uploading...");
+                progressDialog = new ProgressDialog(MainActivity.this);
+                progressDialog.setTitle("uploading to database");
+                progressDialog.setCancelable(true);
+              
+
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                int progressInt = (int) progress;
+                progressDialog.setMessage("" + progressInt + " % uploading");
+                progressDialog.show();
+                textViewStatus.setText((int) progress + "% Uploading...");
             }
         });
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.buttonUploadFile:
                 getPDF();
                 break;
             case R.id.textViewUploads:
-                startActivity(new Intent(this,ViewUploads.class));
+                startActivity(new Intent(this, ViewUploads.class));
                 break;
         }
     }

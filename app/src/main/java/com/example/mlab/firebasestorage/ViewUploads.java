@@ -62,13 +62,13 @@ public class ViewUploads extends AppCompatActivity {
                     uploadsList.add(uploads);
 
                 }
-                ArrayList<String> uploadsName = new ArrayList<String>();
+                ArrayList<String> uploadsName = new ArrayList<>();
                 for(int i=0;i<uploadsList.size();i++)
                 {
                     uploadsName.add(uploadsList.get(i).getName());
                 }
 
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,uploadsName);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,uploadsName);
 
                 listView.setAdapter(adapter);
             }
